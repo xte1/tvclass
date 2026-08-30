@@ -3,102 +3,202 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var apiService = APIService()
     @State private var selectedTab = 0
-    @State private var searchText = ""
-    @State private var favorites: [MediaItem] = []
+
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            HomeView(apiService: apiService)
+                .tabItem { Label("الرئيسية", systemImage: "house.fill") }
+                .tag(0)
+
+            MoviesView(apiService: apiService)
+                .tabItem { Label("الأفلام", systemImage: "film") }
+                .tag(1)
+
+            SeriesView(apiService: apiService)
+                .tabItem { Label("المسلسلات", systemImage: "tv.fill") }
+                .tag(2)
+
+            LibraryView()
+                .tabItem { Label("المكتبة", systemImage: "rectangle.stack.fill") }
+                .tag(3)
+
+            SearchView(apiService: apiService)
+                .tabItem { Label("بحث", systemImage: "magnifyingglass") }
+                .tag(4)
+        }
+        .accentColor(.cyan)
+        .preferredColorScheme(.dark)
+        .onAppear {
+            apiService.fetchAllData()
+        }
+    }
+}
+
+// MARK: - الصفحة الرئيسية بنفس الهيدر والبانر الزجاجي
+struct HomeView: View {
+    @ObservedObject var apiService: APIService
+    @State private var showDeveloperInfo = false
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                VStack {
-                    HStack {
-                        Image(systemName: "tv.fill")
-                            .resizable()
-                            .frame(width: 30, height: 25)
-                            .foregroundColor(.cyan)
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 20) {
+                        
+                        // الهيدر العلوي الزجاجي
+                        HStack {
+                            Image(systemName: "tv.fill")
+                                .font(.title2)
+                                .foregroundColor(.cyan)
 
-                        Spacer()
+                            Spacer()
 
-                        Text("Tvclass")
-                            .font(.title2).bold()
-
-                        Spacer()
-
-                        Menu {
-                            NavigationLink(destination: DeveloperInfoView()) {
-                                Label("معلومات المطور", systemImage: "person.info.fill")
-                            }
-                        } label: {
-                            Image(systemName: "line.3.horizontal")
-                                .font(.title)
+                            Text("Tvclass")
+                                .font(.title3).bold()
                                 .foregroundColor(.white)
-                        }
-                    }
-                    .padding()
-                    .liquidGlass()
-                    .padding(.horizontal)
 
-                    TextField("ابحث عن فيلم أو مسلسل...", text: $searchText)
-                        .onChange(of: searchText) { newValue in
-                            apiService.search(query: newValue)
+                            Spacer()
+
+                            Menu {
+                                Button(action: { showDeveloperInfo.toggle() }) {
+                                    Label("معلومات المطور", systemImage: "person.circle.fill")
+                                }
+                            } label: {
+                                Image(systemName: "line.3.horizontal")
+                                    .font(.title2)
+                                    .foregroundColor(.white)
+                            }
                         }
                         .padding()
-                        .liquidGlass()
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(25)
                         .padding(.horizontal)
 
-                    TabView(selection: $selectedTab) {
-                        MediaGridView(items: searchText.isEmpty ? apiService.movies : apiService.searchResults)
-                            .tabItem { Label("أفلام", systemImage: "film") }
-                            .tag(0)
+                        // السلايدر البانر الرئيسي (Featured Header)
+                        if let featured = apiService.featuredMovies.first {
+                            ZStack(alignment: .bottom) {
+                                AsyncImage(url: featured.backdropURL) { img in
+                                    img.resizable().scaledToFill()
+                                } placeholder: {
+                                    Color.gray.opacity(0.3)
+                                }
+                                .frame(height: 380)
+                                .clipped()
+                                .overlay(
+                                    LinearGradient(colors: [.clear, .black.opacity(0.9)], startPoint: .top, endPoint: .bottom)
+                                )
 
-                        MediaGridView(items: apiService.series)
-                            .tabItem { Label("مسلسلات", systemImage: "tv") }
-                            .tag(1)
+                                VStack(spacing: 8) {
+                                    Text(featured.displayTitle)
+                                        .font(.title).bold()
+                                        .foregroundColor(.white)
 
-                        MediaGridView(items: favorites)
-                            .tabItem { Label("المفضلة", systemImage: "heart.fill") }
-                            .tag(2)
+                                    HStack(spacing: 12) {
+                                        Text("Drama • 2026")
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "star.fill").foregroundColor(.yellow)
+                                            Text(String(format: "%.1f", featured.voteAverage ?? 0.0))
+                                                .font(.caption).bold()
+                                        }
+                                    }
+
+                                    HStack(spacing: 15) {
+                                        Button(action: {}) {
+                                            Image(systemName: "info.circle")
+                                                .font(.title3)
+                                                .foregroundColor(.white)
+                                                .padding(10)
+                                                .background(.ultraThinMaterial)
+                                                .clipShape(Circle())
+                                        }
+
+                                        Button(action: {}) {
+                                            HStack {
+                                                Image(systemName: "play.fill")
+                                                Text("تشغيل").bold()
+                                            }
+                                            .foregroundColor(.black)
+                                            .padding(.horizontal, 24)
+                                            .padding(.vertical, 10)
+                                            .background(Color.white)
+                                            .cornerRadius(20)
+                                        }
+
+                                        Button(action: {}) {
+                                            Image(systemName: "plus")
+                                                .font(.title3)
+                                                .foregroundColor(.white)
+                                                .padding(10)
+                                                .background(.ultraThinMaterial)
+                                                .clipShape(Circle())
+                                        }
+                                    }
+                                    .padding(.top, 5)
+                                }
+                                .padding(.bottom, 20)
+                            }
+                        }
+
+                        // قسم Trending Movies
+                        MediaSectionRow(title: "Trending Movies", items: apiService.trendingMovies)
+
+                        // قسم Trending TV Shows
+                        MediaSectionRow(title: "Trending TV Shows", items: apiService.trendingSeries)
                     }
                 }
             }
-        }
-        .onAppear {
-            apiService.fetchTrendingMovies()
-            apiService.fetchTrendingSeries()
+            .sheet(isPresented: $showDeveloperInfo) {
+                DeveloperInfoView()
+            }
         }
     }
 }
 
-struct MediaGridView: View {
+// الشريط الأفقي المخصص للأفلام والمسلسلات
+struct MediaSectionRow: View {
+    let title: String
     let items: [MediaItem]
-    let columns = [GridItem(.flexible()), GridItem(.flexible())]
 
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: 15) {
-                ForEach(items) { item in
-                    NavigationLink(destination: MovieDetailView(item: item)) {
-                        VStack {
-                            AsyncImage(url: item.posterURL) { img in
-                                img.resizable().scaledToFill()
-                            } placeholder: {
-                                Color.gray.opacity(0.3)
-                            }
-                            .frame(height: 200)
-                            .cornerRadius(12)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Image(systemName: "chevron.left")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                Text(title)
+                    .font(.headline).bold()
+                    .foregroundColor(.white)
+            }
+            .padding(.horizontal)
 
-                            Text(item.displayTitle)
-                                .font(.caption).bold()
-                                .foregroundColor(.white)
-                                .lineLimit(1)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 15) {
+                    ForEach(items) { item in
+                        NavigationLink(destination: MovieDetailView(item: item)) {
+                            VStack(alignment: .leading) {
+                                AsyncImage(url: item.posterURL) { img in
+                                    img.resizable().scaledToFill()
+                                } placeholder: {
+                                    Color.gray.opacity(0.2)
+                                }
+                                .frame(width: 120, height: 170)
+                                .cornerRadius(12)
+
+                                Text(item.displayTitle)
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                    .frame(width: 120, alignment: .leading)
+                            }
                         }
-                        .padding(8)
-                        .liquidGlass()
                     }
                 }
+                .padding(.horizontal)
             }
-            .padding()
         }
     }
 }
