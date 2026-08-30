@@ -17,17 +17,47 @@ jobs:
       with:
         xcode-version: '15.4'
 
-    - name: Build Swift Package App
+    - name: Compile Swift App & Pack IPA
       run: |
-        xcodebuild archive \
-          -scheme Tvclass \
-          -destination 'generic/platform=iOS' \
-          -archivePath build/Tvclass.xcarchive \
-          CODE_SIGNING_ALLOWED=NO
+        # Build binary for iOS
+        swift build -c release --triple arm64-apple-ios16.0-simulator || true
 
-        mkdir -p build/Payload
-        cp -r build/Tvclass.xcarchive/Products/Applications/*.app build/Payload/ || true
-        cp -r build/Tvclass.xcarchive/Products/usr/local/bin/*.app build/Payload/ || true
+        # Create App Bundle Structure
+        mkdir -p build/Payload/Tvclass.app
+
+        # Compile SwiftUI views / App bundle using swiftc directly if needed
+        xcrun --sdk iphoneos swiftc -parse-as-library \
+          -target arm64-apple-ios16.0 \
+          -o build/Payload/Tvclass.app/Tvclass \
+          Tvclass/*.swift
+
+        # Add Info.plist
+        cat <<EOF > build/Payload/Tvclass.app/Info.plist
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>CFBundleExecutable</key>
+            <string>Tvclass</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.tvclass.app</string>
+            <key>CFBundleName</key>
+            <string>Tvclass</string>
+            <key>CFBundleShortVersionString</key>
+            <string>1.0</string>
+            <key>CFBundleVersion</key>
+            <string>1</string>
+            <key>LSRequiresIPhoneOS</key>
+            <true/>
+            <key>MinimumOSVersion</key>
+            <string>16.0</string>
+            <key>UILaunchScreen</key>
+            <dict/>
+        </dict>
+        </plist>
+        EOF
+
+        # Compress to IPA
         cd build
         zip -r Tvclass.ipa Payload
 
