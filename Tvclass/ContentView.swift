@@ -152,6 +152,46 @@ struct HomeView: View {
     }
 }
 
+// MARK: - شبكة عرض الأفلام والمسلسلات (MediaGridView)
+struct MediaGridView: View {
+    let items: [MediaItem]
+    let columns = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
+
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 16) {
+                    ForEach(items) { item in
+                        NavigationLink(destination: MovieDetailView(item: item)) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                AsyncImage(url: item.posterURL) { img in
+                                    img.resizable().scaledToFill()
+                                } placeholder: {
+                                    Color.gray.opacity(0.3)
+                                }
+                                .frame(height: 160)
+                                .cornerRadius(10)
+
+                                Text(item.displayTitle)
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                            }
+                        }
+                    }
+                }
+                .padding()
+            }
+        }
+    }
+}
+
 struct MediaSectionRow: View {
     let title: String
     let items: [MediaItem]
@@ -196,7 +236,6 @@ struct MediaSectionRow: View {
     }
 }
 
-// MARK: - بقية التبويبات المفقودة
 struct MoviesView: View {
     @ObservedObject var apiService: APIService
     var body: some View {
