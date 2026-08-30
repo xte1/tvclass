@@ -21,7 +21,7 @@ jobs:
       run: |
         mkdir -p build/Payload/Tvclass.app
 
-        # تجميع كافة ملفات Swift في المجلد تلقائياً
+        # تجميع كافة ملفات Swift
         SWIFT_FILES=$(find Tvclass -name "*.swift")
         
         xcrun -sdk iphoneos swiftc -parse-as-library \
@@ -29,7 +29,7 @@ jobs:
           -o build/Payload/Tvclass.app/Tvclass \
           $SWIFT_FILES
 
-        # توليد ملف التعريف Info.plist
+        # إنشاء Info.plist مع دعم كامل واتجاه ثابت للغة العربية
         cat <<EOF > build/Payload/Tvclass.app/Info.plist
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -45,6 +45,12 @@ jobs:
             <string>1.0</string>
             <key>CFBundleVersion</key>
             <string>1</string>
+            <key>CFBundleDevelopmentRegion</key>
+            <string>ar</string>
+            <key>CFBundleLocalizations</key>
+            <array>
+                <string>ar</string>
+            </array>
             <key>LSRequiresIPhoneOS</key>
             <true/>
             <key>MinimumOSVersion</key>
@@ -55,8 +61,10 @@ jobs:
         </plist>
         EOF
 
-        # التوقيع المؤقت وضغط IPA
-        codesign --force --sign - --entitlements /dev/null build/Payload/Tvclass.app
+        # التوقيع المؤقت (تمت إزالة /dev/null التي تسببت بالخطأ)
+        codesign --force --deep --sign - build/Payload/Tvclass.app
+
+        # ضغط مجلد Payload إلى IPA
         cd build
         zip -r Tvclass.ipa Payload
 
