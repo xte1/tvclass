@@ -17,21 +17,24 @@ jobs:
       with:
         xcode-version: '15.4'
 
-    - name: Compile Swift App & Pack IPA
+    - name: Compile and Build Package IPA
       run: |
-        # Build binary for iOS
-        swift build -c release --triple arm64-apple-ios16.0-simulator || true
-
-        # Create App Bundle Structure
         mkdir -p build/Payload/Tvclass.app
 
-        # Compile SwiftUI views / App bundle using swiftc directly if needed
-        xcrun --sdk iphoneos swiftc -parse-as-library \
+        # تجميع ملفات سويفت المستهدفة لأجهزة آيفون مباشرة
+        xcrun -sdk iphoneos swiftc -parse-as-library \
           -target arm64-apple-ios16.0 \
           -o build/Payload/Tvclass.app/Tvclass \
-          Tvclass/*.swift
+          Tvclass/App.swift \
+          Tvclass/Models.swift \
+          Tvclass/GlassView.swift \
+          Tvclass/APIService.swift \
+          Tvclass/DeveloperInfoView.swift \
+          Tvclass/PlayerView.swift \
+          Tvclass/MovieDetailView.swift \
+          Tvclass/ContentView.swift
 
-        # Add Info.plist
+        # توليد Info.plist
         cat <<EOF > build/Payload/Tvclass.app/Info.plist
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -57,7 +60,8 @@ jobs:
         </plist>
         EOF
 
-        # Compress to IPA
+        # توقيع عابر وتنسيق IPA
+        codesign --force --sign - --entitlements /dev/null build/Payload/Tvclass.app
         cd build
         zip -r Tvclass.ipa Payload
 
