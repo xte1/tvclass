@@ -34,7 +34,7 @@ struct ContentView: View {
     }
 }
 
-// MARK: - الصفحة الرئيسية بنفس الهيدر والبانر الزجاجي
+// MARK: - الصفحة الرئيسية
 struct HomeView: View {
     @ObservedObject var apiService: APIService
     @State private var showDeveloperInfo = false
@@ -46,8 +46,6 @@ struct HomeView: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
-                        
-                        // الهيدر العلوي الزجاجي
                         HStack {
                             Image(systemName: "tv.fill")
                                 .font(.title2)
@@ -76,7 +74,6 @@ struct HomeView: View {
                         .cornerRadius(25)
                         .padding(.horizontal)
 
-                        // السلايدر البانر الرئيسي (Featured Header)
                         if let featured = apiService.featuredMovies.first {
                             ZStack(alignment: .bottom) {
                                 AsyncImage(url: featured.backdropURL) { img in
@@ -143,10 +140,7 @@ struct HomeView: View {
                             }
                         }
 
-                        // قسم Trending Movies
                         MediaSectionRow(title: "Trending Movies", items: apiService.trendingMovies)
-
-                        // قسم Trending TV Shows
                         MediaSectionRow(title: "Trending TV Shows", items: apiService.trendingSeries)
                     }
                 }
@@ -158,7 +152,6 @@ struct HomeView: View {
     }
 }
 
-// الشريط الأفقي المخصص للأفلام والمسلسلات
 struct MediaSectionRow: View {
     let title: String
     let items: [MediaItem]
@@ -199,6 +192,66 @@ struct MediaSectionRow: View {
                 }
                 .padding(.horizontal)
             }
+        }
+    }
+}
+
+// MARK: - بقية التبويبات المفقودة
+struct MoviesView: View {
+    @ObservedObject var apiService: APIService
+    var body: some View {
+        NavigationStack {
+            MediaGridView(items: apiService.trendingMovies)
+                .navigationTitle("الأفلام")
+        }
+    }
+}
+
+struct SeriesView: View {
+    @ObservedObject var apiService: APIService
+    var body: some View {
+        NavigationStack {
+            MediaGridView(items: apiService.trendingSeries)
+                .navigationTitle("المسلسلات")
+        }
+    }
+}
+
+struct LibraryView: View {
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                Text("المكتبة والمفضلة فارغة حالياً")
+                    .foregroundColor(.gray)
+            }
+            .navigationTitle("المكتبة")
+        }
+    }
+}
+
+struct SearchView: View {
+    @ObservedObject var apiService: APIService
+    @State private var query = ""
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                VStack {
+                    TextField("ابحث عن فيلم أو مسلسل...", text: $query)
+                        .onChange(of: query) { newValue in
+                            apiService.search(query: newValue)
+                        }
+                        .padding()
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(15)
+                        .padding()
+
+                    MediaGridView(items: apiService.searchResults)
+                }
+            }
+            .navigationTitle("البحث")
         }
     }
 }
