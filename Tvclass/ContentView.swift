@@ -179,7 +179,7 @@ struct MediaRow: View {
                                     Color.white.opacity(0.05)
                                 }
                                 .frame(width: 120, height: 175)
-                                .clipped() // تقييد الصورة داخل الإطار بدقة لمنع التمدد
+                                .clipped() // تقييد البوستر داخل الإطار بدقة تامة لمنع أي تمدد
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
 
                                 Text(item.displayTitle)
