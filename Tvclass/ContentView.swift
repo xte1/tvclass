@@ -9,7 +9,6 @@ struct ContentView: View {
         ZStack(alignment: .bottom) {
             Color.black.ignoresSafeArea()
 
-            // محتوى التبويبات النشطة
             Group {
                 switch selectedTab {
                 case 0:
@@ -28,7 +27,7 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            // شريط التنقل السفلي الزجاجي العائم (متناسق وثابت تماماً)
+            // شريط التنقل السفلي العائم
             HStack(spacing: 0) {
                 TabBarButton(icon: "tv.fill", title: "الرئيسية", isSelected: selectedTab == 0) { selectedTab = 0 }
                 TabBarButton(icon: "film.fill", title: "الأفلام", isSelected: selectedTab == 1) { selectedTab = 1 }
@@ -73,7 +72,7 @@ struct TabBarButton: View {
     }
 }
 
-// MARK: - 1. الرئيسية
+// MARK: - الرئيسية
 struct HomeView: View {
     @ObservedObject var apiService: APIService
     @Binding var favorites: [MediaItem]
@@ -87,7 +86,6 @@ struct HomeView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
                         
-                        // الهيدر
                         HStack {
                             Text("Tvclass")
                                 .font(.system(size: 24, weight: .bold, design: .rounded))
@@ -100,7 +98,6 @@ struct HomeView: View {
                         .padding(.horizontal, 16)
                         .padding(.top, 10)
 
-                        // البوستر الرئيسي
                         if let featured = apiService.featuredMovies.first {
                             ZStack(alignment: .bottomLeading) {
                                 AsyncImage(url: featured.backdropURL ?? featured.posterURL) { img in
@@ -198,7 +195,7 @@ struct MediaRow: View {
     }
 }
 
-// MARK: - 2. الأفلام
+// MARK: - الأفلام
 struct MoviesView: View {
     @ObservedObject var apiService: APIService
     @Binding var favorites: [MediaItem]
@@ -212,7 +209,7 @@ struct MoviesView: View {
     }
 }
 
-// MARK: - 3. المسلسلات
+// MARK: - المسلسلات
 struct SeriesView: View {
     @ObservedObject var apiService: APIService
     @Binding var favorites: [MediaItem]
@@ -226,7 +223,7 @@ struct SeriesView: View {
     }
 }
 
-// MARK: - 4. البحث (تم إصلاحه ليعمل بفعالية تامة مع الفلترة الفورية)
+// MARK: - البحث
 struct SearchView: View {
     @ObservedObject var apiService: APIService
     @Binding var favorites: [MediaItem]
@@ -253,7 +250,6 @@ struct SearchView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 10)
 
-                // حقل إدخال البحث
                 HStack(spacing: 10) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.gray)
@@ -274,7 +270,6 @@ struct SearchView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .padding(.horizontal, 16)
 
-                // نتائج البحث
                 ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         ForEach(searchResults) { item in
@@ -307,7 +302,7 @@ struct SearchView: View {
     }
 }
 
-// MARK: - 5. الإعدادات
+// MARK: - الإعدادات (تم إصلاح اتجاه النصوص لتظهر طبيعية 100%)
 struct SettingsView: View {
     let favoritesCount: Int
 
@@ -322,47 +317,60 @@ struct SettingsView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 10)
 
-                List {
-                    Section {
-                        HStack(spacing: 12) {
-                            Image(systemName: "person.circle.fill")
-                                .font(.system(size: 34))
-                                .foregroundColor(.cyan)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("حساب Tvclass")
-                                    .font(.headline)
-                                Text("نشط • دقة 4K HDR")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                    }
-
-                    Section(header: Text("المفضلة").foregroundColor(.gray)) {
-                        HStack {
-                            Text("العناصر المحفوظة")
-                            Spacer()
-                            Text("\(favoritesCount)")
+                VStack(spacing: 12) {
+                    // بطاقة الحساب
+                    HStack(spacing: 12) {
+                        Image(systemName: "person.circle.fill")
+                            .font(.system(size: 34))
+                            .foregroundColor(.cyan)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("حساب Tvclass")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            Text("نشط • دقة 4K HDR")
+                                .font(.caption)
                                 .foregroundColor(.gray)
                         }
+                        Spacer()
                     }
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
 
-                    Section(header: Text("حول التطبيق").foregroundColor(.gray)) {
-                        HStack {
-                            Text("الإصدار")
-                            Spacer()
-                            Text("1.2.0")
-                                .foregroundColor(.gray)
-                        }
+                    // بطاقة المفضلة
+                    HStack {
+                        Text("العناصر المحفوظة في المفضلة")
+                            .foregroundColor(.white)
+                        Spacer()
+                        Text("\(favoritesCount)")
+                            .foregroundColor(.gray)
+                            .bold()
                     }
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+
+                    // بطاقة الإصدار
+                    HStack {
+                        Text("إصدار التطبيق")
+                            .foregroundColor(.white)
+                        Spacer()
+                        Text("1.2.0")
+                            .foregroundColor(.gray)
+                    }
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
-                .scrollContentBackground(.hidden)
+                .padding(.horizontal, 16)
+
+                Spacer()
             }
         }
+        .environment(\.layoutDirection, .rightToLeft)
     }
 }
 
-// MARK: - شبكة العرض العامة المنسقة
 struct MediaGrid: View {
     let title: String
     let items: [MediaItem]
