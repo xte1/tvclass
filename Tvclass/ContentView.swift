@@ -7,7 +7,6 @@ struct ContentView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            // الشاشة المعروضة بحسب التبويب المحدد
             Group {
                 switch selectedTab {
                 case 0:
@@ -24,7 +23,6 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            // شريط التنقل الزجاجي العائم (Apple TV Liquid Glass TabBar)
             HStack(spacing: 28) {
                 TabBarButton(icon: "tv.fill", title: "الرئيسية", isSelected: selectedTab == 0) { selectedTab = 0 }
                 TabBarButton(icon: "film.fill", title: "الأفلام", isSelected: selectedTab == 1) { selectedTab = 1 }
@@ -40,14 +38,13 @@ struct ContentView: View {
             .padding(.bottom, 25)
         }
         .preferredColorScheme(.dark)
-        .environment(\.layoutDirection, .leftToRight) // منع عكس الكلمات العربية
+        .environment(\.layoutDirection, .leftToRight)
         .onAppear {
             apiService.fetchAllData()
         }
     }
 }
 
-// MARK: - أزرار شريط التنقل الزجاجي
 struct TabBarButton: View {
     let icon: String
     let title: String
@@ -69,7 +66,6 @@ struct TabBarButton: View {
     }
 }
 
-// MARK: - الصفحة الرئيسية بأسلوب Apple TV
 struct HomeView: View {
     @ObservedObject var apiService: APIService
     @Binding var favorites: [MediaItem]
@@ -83,7 +79,6 @@ struct HomeView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .trailing, spacing: 24) {
                         
-                        // الهيدر العلوي والشعار
                         HStack {
                             Image(systemName: "tv.badge.wifi")
                                 .font(.title2)
@@ -98,7 +93,6 @@ struct HomeView: View {
                         .padding(.horizontal, 20)
                         .padding(.top, 10)
 
-                        // البوستر الرئيسي (Apple TV Hero Banner)
                         if let featured = apiService.featuredMovies.first {
                             ZStack(alignment: .bottomTrailing) {
                                 AsyncImage(url: featured.backdropURL ?? featured.posterURL) { img in
@@ -140,7 +134,6 @@ struct HomeView: View {
                             .padding(.horizontal, 16)
                         }
 
-                        // الأقسام الأفقية
                         AppleTVRow(title: "الأفلام الأكثر مشاهدة", items: apiService.trendingMovies) { item in
                             selectedMedia = item
                         }
@@ -160,7 +153,6 @@ struct HomeView: View {
     }
 }
 
-// MARK: - صف أفقـي كروت Apple TV
 struct AppleTVRow: View {
     let title: String
     let items: [MediaItem]
@@ -202,7 +194,6 @@ struct AppleTVRow: View {
     }
 }
 
-// MARK: - باقي التبويبات (أفلام، مسلسلات، مكتبة)
 struct MoviesView: View {
     @ObservedObject var apiService: APIService
     @Binding var favorites: [MediaItem]
