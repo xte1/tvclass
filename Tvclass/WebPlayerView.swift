@@ -47,7 +47,7 @@ struct NativeWebPlayer: View {
                 .clipShape(Capsule())
                 .shadow(color: .black.opacity(0.5), radius: 10)
             }
-            .padding(.top, 20)
+            .padding(.top, 50)
             .padding(.trailing, 20)
         }
     }
