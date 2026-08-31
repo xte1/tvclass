@@ -17,7 +17,7 @@ struct MovieDetailView: View {
         ZStack(alignment: .topLeading) {
             Color.black.ignoresSafeArea()
 
-            // خلفية ضبابية متناسقة
+            // خلفية ضبابية فخمة
             AsyncImage(url: item.backdropURL ?? item.posterURL) { img in
                 img.resizable().scaledToFill()
             } placeholder: {
@@ -25,13 +25,13 @@ struct MovieDetailView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .blur(radius: 40)
-            .overlay(Color.black.opacity(0.8))
+            .overlay(Color.black.opacity(0.82))
             .ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
                     
-                    // بوستر العرض
+                    // بوستر العرض العلوي
                     ZStack(alignment: .bottomLeading) {
                         AsyncImage(url: item.backdropURL ?? item.posterURL) { img in
                             img.resizable().scaledToFill()
@@ -42,7 +42,7 @@ struct MovieDetailView: View {
                         .frame(maxWidth: .infinity)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .overlay(
-                            LinearGradient(colors: [.clear, .black.opacity(0.9)], startPoint: .top, endPoint: .bottom)
+                            LinearGradient(colors: [.clear, .black.opacity(0.95)], startPoint: .top, endPoint: .bottom)
                         )
 
                         VStack(alignment: .leading, spacing: 8) {
@@ -120,7 +120,7 @@ struct MovieDetailView: View {
                             .font(.headline)
                             .foregroundColor(.white)
 
-                        Text(item.overview ?? "شاهد العرض بدقة عالية مع ترجمة عربية وصوت محيطي.")
+                        Text(item.overview ?? "شاهد العرض بدقة عالية مع ترجمة عربية كاملة وصوت محيطي.")
                             .font(.caption)
                             .foregroundColor(.white.opacity(0.75))
                             .lineSpacing(3)
@@ -131,7 +131,7 @@ struct MovieDetailView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .padding(.horizontal, 16)
 
-                    // الحلقات والمواسم للمسلسلات
+                    // المواسم والحلقات للمسلسلات
                     if item.title == nil {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
@@ -195,10 +195,10 @@ struct MovieDetailView: View {
                         }
                     }
                 }
-                .padding(.bottom, 50)
+                .padding(.bottom, 60)
             }
 
-            // زر الرجوع العلوي الثابت
+            // زر الرجوع العلوي الثابت والمريح
             Button(action: { dismiss() }) {
                 HStack(spacing: 4) {
                     Image(systemName: "chevron.right")
