@@ -21,7 +21,7 @@ jobs:
       run: |
         mkdir -p build/Payload/Tvclass.app
 
-        # تجميع كافة ملفات Swift في المجلد تلقائياً
+        # البحث عن جميع ملفات Swift وتجميعها معا لضمان التعرف على Episode وباقي الهياكل
         SWIFT_FILES=$(find Tvclass -name "*.swift")
         
         xcrun -sdk iphoneos swiftc -parse-as-library \
@@ -29,7 +29,7 @@ jobs:
           -o build/Payload/Tvclass.app/Tvclass \
           $SWIFT_FILES
 
-        # إنشاء Info.plist مع دعم كامل ولغة عربية قياسية
+        # إنشاء Info.plist وتحديد الاتجاه والدعم اللغوي العربي القياسي
         cat <<EOF > build/Payload/Tvclass.app/Info.plist
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -61,10 +61,10 @@ jobs:
         </plist>
         EOF
 
-        # توقيع التطبيق بشكل صحيح
+        # التوقيع المؤقت التلقائي بصيغة صحيحة (إزالة /dev/null لمنع خطأ Entitlements)
         codesign --force --deep --sign - build/Payload/Tvclass.app
 
-        # إنشاء حزمة IPA
+        # ضغط المجلد واستخراج IPA
         cd build
         zip -r Tvclass.ipa Payload
 
