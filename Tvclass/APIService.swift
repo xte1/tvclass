@@ -11,7 +11,7 @@ class APIService: ObservableObject {
     private let apiKey = "c935334336f322304892c90bcbc94fb4"
     
     func fetchAllData() {
-        // جلب الأفلام الرائجة والشائعة بكثرة
+        // جلب الأفلام الشائعة والرائجة
         fetchMedia(from: "https://api.themoviedb.org/3/trending/movie/day?api_key=\(apiKey)&language=ar-AR") { [weak self] movies in
             DispatchQueue.main.async {
                 self?.trendingMovies = movies
@@ -21,7 +21,7 @@ class APIService: ObservableObject {
             }
         }
         
-        // جلب المسلسلات الرائجة والشائعة بكثرة
+        // جلب المسلسلات الشائعة والرائجة
         fetchMedia(from: "https://api.themoviedb.org/3/trending/tv/day?api_key=\(apiKey)&language=ar-AR") { [weak self] series in
             DispatchQueue.main.async {
                 self?.trendingSeries = series
@@ -29,7 +29,7 @@ class APIService: ObservableObject {
         }
     }
     
-    // محرك البحث الشامل لجلب أي فيلم أو مسلسل في قاعدة البيانات
+    // محرك البحث الشامل لجلب أي فيلم أو مسلسل في الموقع
     func searchMedia(query: String) {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedQuery.isEmpty else {
