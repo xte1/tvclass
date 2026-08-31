@@ -216,7 +216,23 @@ struct MovieDetailView: View {
         .navigationBarHidden(true)
         .fullScreenCover(isPresented: $showPlayer) {
             if let url = selectedEpisodeURL {
-                NativeWebPlayer(url: url)
+                // استخدام اسم المشغل الصحيح المتطابق مع WebPlayerView
+                NavigationView {
+                    ZStack(alignment: .topTrailing) {
+                        WebPlayerView(url: url)
+                            .ignoresSafeArea()
+                        
+                        Button(action: { showPlayer = false }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 28))
+                                .foregroundColor(.white)
+                                .shadow(radius: 5)
+                        }
+                        .padding(.top, 15)
+                        .padding(.trailing, 20)
+                    }
+                    .navigationBarHidden(true)
+                }
             }
         }
     }
