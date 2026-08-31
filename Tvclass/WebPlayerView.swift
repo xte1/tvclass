@@ -1,51 +1,51 @@
 import SwiftUI
 import WebKit
 
-struct WebPlayerView: UIViewRepresentable {
+struct NativeWebPlayerView: UIViewRepresentable {
     let url: URL
 
     func makeUIView(context: Context) -> WKWebView {
-        let configuration = WKWebViewConfiguration()
-        configuration.allowsInlineMediaPlayback = true
-        configuration.mediaTypesRequiringUserActionForPlayback = []
+        let config = WKWebViewConfiguration()
+        config.allowsInlineMediaPlayback = true
+        config.mediaTypesRequiringUserActionForPlayback = []
         
-        let webView = WKWebView(frame: .zero, configuration: configuration)
-        webView.scrollView.isScrollEnabled = false
+        let webView = WKWebView(frame: .zero, configuration: config)
         webView.backgroundColor = .black
         webView.isOpaque = false
+        webView.scrollView.isScrollEnabled = false
+        webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
         return webView
     }
 
     func updateUIView(_ uiView: WKWebView, context: Context) {
-        let request = URLRequest(url: url)
-        uiView.load(request)
+        uiView.load(URLRequest(url: url))
     }
 }
 
-struct PlayerContainerView: View {
-    let mediaItem: MediaItem
+struct NativeWebPlayer: View {
+    let url: URL
     @Environment(\.dismiss) private var dismiss
-
-    var embedURL: URL {
-        // يمكنك تغيير نطاق مشغل الويب المفضل هنا
-        let isTV = mediaItem.title == nil
-        let typePath = isTV ? "tv" : "movie"
-        return URL(string: "https://vidsrc.to/embed/\(typePath)/\(mediaItem.id)") ?? URL(string: "https://google.com")!
-    }
 
     var body: some View {
         ZStack(alignment: .topLeading) {
             Color.black.ignoresSafeArea()
 
-            WebPlayerView(url: embedURL)
+            NativeWebPlayerView(url: url)
                 .ignoresSafeArea()
 
+            // زر إغلاق بنمط Apple TV Glass
             Button(action: { dismiss() }) {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.largeTitle)
-                    .foregroundColor(.white.opacity(0.8))
-                    .padding()
+                Image(systemName: "xmark")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(14)
+                    .background(.ultraThinMaterial)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                    .shadow(color: .black.opacity(0.3), radius: 10)
             }
+            .padding(.top, 50)
+            .padding(.leading, 20)
         }
     }
 }
