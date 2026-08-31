@@ -12,13 +12,15 @@ struct NativeWebPlayerView: UIViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.backgroundColor = .black
         webView.isOpaque = false
-        webView.scrollView.isScrollEnabled = false
+        webView.scrollView.isScrollEnabled = true
+        // استخدام UserAgent نظامي لتجاوز الحظر وتشغيل الـ iframe بسلاسة
         webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
         return webView
     }
 
     func updateUIView(_ uiView: WKWebView, context: Context) {
-        uiView.load(URLRequest(url: url))
+        let request = URLRequest(url: url)
+        uiView.load(request)
     }
 }
 
@@ -33,6 +35,7 @@ struct NativeWebPlayer: View {
             NativeWebPlayerView(url: url)
                 .ignoresSafeArea()
 
+            // زر إغلاق مرن واضح
             Button(action: { dismiss() }) {
                 HStack(spacing: 6) {
                     Image(systemName: "xmark")
@@ -41,14 +44,16 @@ struct NativeWebPlayer: View {
                         .font(.caption).bold()
                 }
                 .foregroundColor(.white)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background(Color.red.opacity(0.85))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(Color.black.opacity(0.7))
+                .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 1))
                 .clipShape(Capsule())
                 .shadow(color: .black.opacity(0.5), radius: 10)
             }
-            .padding(.top, 50)
+            .padding(.top, 40)
             .padding(.trailing, 20)
         }
+        .statusBarHidden(true)
     }
 }
