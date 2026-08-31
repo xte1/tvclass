@@ -107,6 +107,7 @@ struct HomeView: View {
                                 }
                                 .frame(height: 280)
                                 .frame(maxWidth: .infinity)
+                                .clipped() // منع تجاوز الحواف
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                                 .overlay(
                                     LinearGradient(colors: [.clear, .black.opacity(0.9)], startPoint: .top, endPoint: .bottom)
@@ -178,6 +179,7 @@ struct MediaRow: View {
                                     Color.white.opacity(0.05)
                                 }
                                 .frame(width: 120, height: 175)
+                                .clipped() // تقييد الصورة داخل الإطار بدقة لمنع التمدد
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
 
                                 Text(item.displayTitle)
@@ -223,28 +225,19 @@ struct SeriesView: View {
     }
 }
 
-// MARK: - البحث
+// MARK: - البحث الشامل
 struct SearchView: View {
     @ObservedObject var apiService: APIService
     @Binding var favorites: [MediaItem]
     @State private var searchText = ""
     @State private var selectedMedia: MediaItem?
 
-    var searchResults: [MediaItem] {
-        let allItems = apiService.trendingMovies + apiService.trendingSeries
-        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.isEmpty {
-            return allItems
-        }
-        return allItems.filter { $0.displayTitle.localizedCaseInsensitiveContains(trimmed) }
-    }
-
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 14) {
-                Text("البحث")
+                Text("البحث الشامل")
                     .font(.title2).bold()
                     .foregroundColor(.white)
                     .padding(.horizontal, 16)
@@ -254,12 +247,18 @@ struct SearchView: View {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.gray)
                     
-                    TextField("ابحث عن فيلم أو مسلسل...", text: $searchText)
+                    TextField("ابحث عن أي فيلم أو مسلسل...", text: $searchText)
                         .foregroundColor(.white)
                         .autocorrectionDisabled(true)
+                        .onChange(of: searchText) { newValue in
+                            apiService.searchMedia(query: newValue)
+                        }
 
                     if !searchText.isEmpty {
-                        Button(action: { searchText = "" }) {
+                        Button(action: {
+                            searchText = ""
+                            apiService.searchMedia(query: "")
+                        }) {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundColor(.gray)
                         }
@@ -272,7 +271,7 @@ struct SearchView: View {
 
                 ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        ForEach(searchResults) { item in
+                        ForEach(apiService.searchResults) { item in
                             Button(action: { selectedMedia = item }) {
                                 VStack(alignment: .leading, spacing: 4) {
                                     AsyncImage(url: item.posterURL) { img in
@@ -281,6 +280,7 @@ struct SearchView: View {
                                         Color.white.opacity(0.05)
                                     }
                                     .frame(height: 165)
+                                    .clipped()
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
                                     Text(item.displayTitle)
@@ -302,7 +302,7 @@ struct SearchView: View {
     }
 }
 
-// MARK: - الإعدادات (تم إصلاح اتجاه النصوص لتظهر طبيعية 100%)
+// MARK: - الإعدادات
 struct SettingsView: View {
     let favoritesCount: Int
 
@@ -318,7 +318,6 @@ struct SettingsView: View {
                     .padding(.top, 10)
 
                 VStack(spacing: 12) {
-                    // بطاقة الحساب
                     HStack(spacing: 12) {
                         Image(systemName: "person.circle.fill")
                             .font(.system(size: 34))
@@ -337,7 +336,6 @@ struct SettingsView: View {
                     .background(.ultraThinMaterial)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
 
-                    // بطاقة المفضلة
                     HStack {
                         Text("العناصر المحفوظة في المفضلة")
                             .foregroundColor(.white)
@@ -350,7 +348,6 @@ struct SettingsView: View {
                     .background(.ultraThinMaterial)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
 
-                    // بطاقة الإصدار
                     HStack {
                         Text("إصدار التطبيق")
                             .foregroundColor(.white)
@@ -397,6 +394,7 @@ struct MediaGrid: View {
                                     Color.white.opacity(0.05)
                                 }
                                 .frame(height: 165)
+                                .clipped()
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                         }
