@@ -14,60 +14,59 @@ struct MovieDetailView: View {
     }
 
     var body: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .topLeading) {
-                Color.black.ignoresSafeArea()
+        ZStack(alignment: .topLeading) {
+            Color.black.ignoresSafeArea()
 
-                // الخلفية الضبابية
-                AsyncImage(url: item.posterURL ?? item.backdropURL) { img in
-                    img.resizable().scaledToFill()
-                } placeholder: {
-                    Color.black
-                }
-                .frame(width: geo.size.width, height: geo.size.height)
-                .blur(radius: 50)
-                .overlay(Color.black.opacity(0.8))
-                .ignoresSafeArea()
+            // الخلفية الضبابية المحيطة
+            AsyncImage(url: item.backdropURL ?? item.posterURL) { img in
+                img.resizable().scaledToFill()
+            } placeholder: {
+                Color.black
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .blur(radius: 50)
+            .overlay(Color.black.opacity(0.78))
+            .ignoresSafeArea()
 
-                ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 20) {
-                        
-                        // بوستر العرض
-                        ZStack(alignment: .bottomLeading) {
-                            AsyncImage(url: item.backdropURL ?? item.posterURL) { img in
-                                img.resizable().scaledToFill()
-                            } placeholder: {
-                                Rectangle().fill(Color.white.opacity(0.05))
-                            }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: min(geo.size.height * 0.4, 320))
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                            .overlay(
-                                LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
-                            )
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 20) {
+                    
+                    // البوستر الرئيسي العلوي بالكامل
+                    ZStack(alignment: .bottomLeading) {
+                        AsyncImage(url: item.backdropURL ?? item.posterURL) { img in
+                            img.resizable().scaledToFill()
+                        } placeholder: {
+                            Rectangle().fill(Color.white.opacity(0.05))
                         }
-                        .padding(.top, 60)
-                        .padding(.horizontal, 16)
+                        .frame(height: 320)
+                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .overlay(
+                            LinearGradient(colors: [.clear, .black.opacity(0.95)], startPoint: .top, endPoint: .bottom)
+                        )
 
-                        // تفاصيل العرض والأزرار
-                        VStack(alignment: .leading, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 10) {
                             Text(item.displayTitle)
-                                .font(.system(size: 26, weight: .bold))
+                                .font(.system(size: 26, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
 
                             HStack(spacing: 10) {
-                                Text("4K HDR")
+                                Text("Apple Original")
                                     .font(.caption2).bold()
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
                                     .background(.ultraThinMaterial)
                                     .cornerRadius(6)
 
+                                Text("4K HDR")
+                                    .font(.caption2).bold()
+                                    .foregroundColor(.white.opacity(0.8))
+
                                 Text(String(format: "★ %.1f", item.voteAverage ?? 0.0))
-                                    .font(.caption).bold()
+                                    .font(.caption2).bold()
                                     .foregroundColor(.yellow)
                             }
 
+                            // أزرار المشاهدة والإضافة للمفضلة
                             HStack(spacing: 12) {
                                 Button(action: {
                                     let isMovie = item.title != nil
@@ -79,13 +78,13 @@ struct MovieDetailView: View {
                                         showPlayer = true
                                     }
                                 }) {
-                                    HStack {
+                                    HStack(spacing: 8) {
                                         Image(systemName: "play.fill")
-                                        Text("تشغيل").bold()
+                                        Text("مشاهدة").bold()
                                     }
                                     .font(.subheadline)
                                     .foregroundColor(.black)
-                                    .padding(.horizontal, 30)
+                                    .frame(maxWidth: .infinity)
                                     .frame(height: 48)
                                     .background(Color.white)
                                     .clipShape(Capsule())
@@ -107,107 +106,124 @@ struct MovieDetailView: View {
                                         .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
                                 }
                             }
-                            .padding(.top, 6)
+                            .padding(.top, 4)
                         }
-                        .padding(.horizontal, 20)
+                        .padding(20)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 50)
 
-                        // ملخص القصة
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("القصة")
-                                .font(.headline)
-                                .foregroundColor(.white)
+                    // قصة الفلم/المسلسل
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("عن العمل")
+                            .font(.headline)
+                            .foregroundColor(.white)
 
-                            Text(item.overview ?? "شاهد العرض بدقة عالية وترجمة عربية تلقائية.")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.75))
-                                .lineSpacing(4)
-                        }
-                        .padding(16)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.ultraThinMaterial)
-                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                        .padding(.horizontal, 16)
+                        Text(item.overview ?? "شاهد أفضل العروض الحصرية بدقة 4K مع ترجمة عربية كاملة وصوت محيطي.")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.75))
+                            .lineSpacing(4)
+                    }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 18))
+                    .padding(.horizontal, 16)
 
-                        // قائمة المواسم والحلقات عند اختيار مسلسل
-                        if item.title == nil {
-                            VStack(alignment: .leading, spacing: 14) {
-                                HStack {
-                                    Text("الحلقات")
-                                        .font(.title3).bold()
-                                        .foregroundColor(.white)
+                    // الحلقات والمواسم للمسلسلات
+                    if item.title == nil {
+                        VStack(alignment: .leading, spacing: 14) {
+                            HStack {
+                                Text("الحلقات")
+                                    .font(.title3).bold()
+                                    .foregroundColor(.white)
 
-                                    Spacer()
+                                Spacer()
 
-                                    Menu {
-                                        ForEach(1...5, id: \.self) { s in
-                                            Button("الموسم \(s)") { selectedSeason = s }
-                                        }
-                                    } label: {
-                                        HStack(spacing: 6) {
-                                            Text("الموسم \(selectedSeason)")
-                                                .font(.subheadline).bold()
-                                            Image(systemName: "chevron.down")
-                                                .font(.caption).bold()
-                                        }
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 14)
-                                        .padding(.vertical, 8)
-                                        .background(.ultraThinMaterial)
-                                        .clipShape(Capsule())
+                                Menu {
+                                    ForEach(1...5, id: \.self) { s in
+                                        Button("الموسم \(s)") { selectedSeason = s }
                                     }
-                                }
-                                .padding(.horizontal, 20)
-
-                                VStack(spacing: 10) {
-                                    ForEach(1...8, id: \.self) { ep in
-                                        Button(action: {
-                                            if let url = URL(string: "https://vidsrc.pro/embed/tv/\(item.id)/\(selectedSeason)/\(ep)?sub.ar=true") {
-                                                selectedEpisodeURL = url
-                                                showPlayer = true
-                                            }
-                                        }) {
-                                            HStack {
-                                                Image(systemName: "play.circle.fill")
-                                                    .font(.title2)
-                                                    .foregroundColor(.white)
-
-                                                VStack(alignment: .leading, spacing: 2) {
-                                                    Text("الحلقة \(ep)")
-                                                        .font(.subheadline).bold()
-                                                        .foregroundColor(.white)
-                                                    Text("اضغط للمشاهدة")
-                                                        .font(.caption2)
-                                                        .foregroundColor(.white.opacity(0.6))
-                                                }
-
-                                                Spacer()
-                                            }
-                                            .padding(14)
-                                            .background(.ultraThinMaterial)
-                                            .clipShape(RoundedRectangle(cornerRadius: 14))
-                                        }
+                                } label: {
+                                    HStack(spacing: 6) {
+                                        Text("الموسم \(selectedSeason)")
+                                            .font(.subheadline).bold()
+                                        Image(systemName: "chevron.down")
+                                            .font(.caption).bold()
                                     }
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 8)
+                                    .background(.ultraThinMaterial)
+                                    .clipShape(Capsule())
                                 }
-                                .padding(.horizontal, 16)
                             }
+                            .padding(.horizontal, 20)
+
+                            VStack(spacing: 10) {
+                                ForEach(1...8, id: \.self) { ep in
+                                    Button(action: {
+                                        if let url = URL(string: "https://vidsrc.pro/embed/tv/\(item.id)/\(selectedSeason)/\(ep)?sub.ar=true") {
+                                            selectedEpisodeURL = url
+                                            showPlayer = true
+                                        }
+                                    }) {
+                                        HStack(spacing: 12) {
+                                            ZStack {
+                                                AsyncImage(url: item.backdropURL ?? item.posterURL) { img in
+                                                    img.resizable().scaledToFill()
+                                                } placeholder: {
+                                                    Color.white.opacity(0.05)
+                                                }
+                                                .frame(width: 100, height: 62)
+                                                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                                                Image(systemName: "play.circle.fill")
+                                                    .font(.title3)
+                                                    .foregroundColor(.white)
+                                            }
+
+                                            VStack(alignment: .leading, spacing: 3) {
+                                                Text("الحلقة \(ep)")
+                                                    .font(.subheadline).bold()
+                                                    .foregroundColor(.white)
+                                                Text("الموسم \(selectedSeason)")
+                                                    .font(.caption2)
+                                                    .foregroundColor(.white.opacity(0.6))
+                                            }
+
+                                            Spacer()
+                                        }
+                                        .padding(10)
+                                        .background(.ultraThinMaterial)
+                                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 16)
                         }
                     }
-                    .padding(.bottom, 60)
                 }
-
-                // زر الإغلاق / الرجوع العلوي
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(width: 40, height: 40)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                        .shadow(radius: 5)
-                }
-                .padding(.leading, 20)
-                .padding(.top, 15)
+                .padding(.bottom, 60)
             }
+
+            // زر عودة علوي بارز ومباشر
+            Button(action: { dismiss() }) {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .bold))
+                    Text("رجوع")
+                        .font(.subheadline).bold()
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(.ultraThinMaterial)
+                .clipShape(Capsule())
+                .shadow(color: .black.opacity(0.4), radius: 5)
+            }
+            .padding(.leading, 16)
+            .padding(.top, 10)
         }
         .navigationBarHidden(true)
         .fullScreenCover(isPresented: $showPlayer) {
