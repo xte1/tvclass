@@ -7,6 +7,9 @@ struct ContentView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
+            Color.black.ignoresSafeArea()
+
+            // محتوى التبويبات النشطة
             Group {
                 switch selectedTab {
                 case 0:
@@ -25,7 +28,7 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            // شريط التنقل السفلي العائم (زجاجي ومستقر)
+            // شريط التنقل السفلي الزجاجي العائم (متناسق وثابت تماماً)
             HStack(spacing: 0) {
                 TabBarButton(icon: "tv.fill", title: "الرئيسية", isSelected: selectedTab == 0) { selectedTab = 0 }
                 TabBarButton(icon: "film.fill", title: "الأفلام", isSelected: selectedTab == 1) { selectedTab = 1 }
@@ -34,13 +37,13 @@ struct ContentView: View {
                 TabBarButton(icon: "gearshape.fill", title: "الإعدادات", isSelected: selectedTab == 4) { selectedTab = 4 }
             }
             .padding(.vertical, 10)
-            .padding(.horizontal, 4)
+            .padding(.horizontal, 8)
             .background(.ultraThinMaterial)
             .clipShape(Capsule())
-            .overlay(Capsule().stroke(Color.white.opacity(0.15), lineWidth: 1))
-            .shadow(color: .black.opacity(0.5), radius: 15, y: 5)
-            .padding(.horizontal, 16)
-            .padding(.bottom, 12)
+            .overlay(Capsule().stroke(Color.white.opacity(0.2), lineWidth: 1))
+            .shadow(color: .black.opacity(0.6), radius: 15, y: 5)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 15)
         }
         .preferredColorScheme(.dark)
         .environment(\.layoutDirection, .rightToLeft)
@@ -58,19 +61,19 @@ struct TabBarButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 3) {
+            VStack(spacing: 4) {
                 Image(systemName: icon)
                     .font(.system(size: 16, weight: isSelected ? .bold : .regular))
                 Text(title)
-                    .font(.system(size: 9, weight: isSelected ? .bold : .regular))
+                    .font(.system(size: 10, weight: isSelected ? .bold : .medium))
             }
             .frame(maxWidth: .infinity)
-            .foregroundColor(isSelected ? .white : .white.opacity(0.45))
+            .foregroundColor(isSelected ? .white : .white.opacity(0.4))
         }
     }
 }
 
-// MARK: - الرئيسية
+// MARK: - 1. الرئيسية
 struct HomeView: View {
     @ObservedObject var apiService: APIService
     @Binding var favorites: [MediaItem]
@@ -84,13 +87,12 @@ struct HomeView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
                         
+                        // الهيدر
                         HStack {
                             Text("Tvclass")
-                                .font(.system(size: 22, weight: .bold, design: .rounded))
+                                .font(.system(size: 24, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
-
                             Spacer()
-
                             Image(systemName: "tv.badge.wifi")
                                 .font(.title3)
                                 .foregroundColor(.cyan)
@@ -98,6 +100,7 @@ struct HomeView: View {
                         .padding(.horizontal, 16)
                         .padding(.top, 10)
 
+                        // البوستر الرئيسي
                         if let featured = apiService.featuredMovies.first {
                             ZStack(alignment: .bottomLeading) {
                                 AsyncImage(url: featured.backdropURL ?? featured.posterURL) { img in
@@ -136,15 +139,15 @@ struct HomeView: View {
                             .padding(.horizontal, 16)
                         }
 
-                        AppleTVRow(title: "الأفلام الأكثر مشاهدة", items: apiService.trendingMovies) { item in
+                        MediaRow(title: "الأفلام الأكثر مشاهدة", items: apiService.trendingMovies) { item in
                             selectedMedia = item
                         }
 
-                        AppleTVRow(title: "المسلسلات الحصرية", items: apiService.trendingSeries) { item in
+                        MediaRow(title: "المسلسلات الحصرية", items: apiService.trendingSeries) { item in
                             selectedMedia = item
                         }
 
-                        Spacer().frame(height: 80)
+                        Spacer().frame(height: 100)
                     }
                 }
             }
@@ -155,7 +158,7 @@ struct HomeView: View {
     }
 }
 
-struct AppleTVRow: View {
+struct MediaRow: View {
     let title: String
     let items: [MediaItem]
     let onSelect: (MediaItem) -> Void
@@ -177,14 +180,14 @@ struct AppleTVRow: View {
                                 } placeholder: {
                                     Color.white.opacity(0.05)
                                 }
-                                .frame(width: 115, height: 170)
+                                .frame(width: 120, height: 175)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
 
                                 Text(item.displayTitle)
                                     .font(.caption2).bold()
                                     .foregroundColor(.white)
                                     .lineLimit(1)
-                                    .frame(width: 115, alignment: .leading)
+                                    .frame(width: 120, alignment: .leading)
                             }
                         }
                     }
@@ -195,50 +198,48 @@ struct AppleTVRow: View {
     }
 }
 
-// MARK: - الأفلام
+// MARK: - 2. الأفلام
 struct MoviesView: View {
     @ObservedObject var apiService: APIService
     @Binding var favorites: [MediaItem]
     @State private var selectedMedia: MediaItem?
 
     var body: some View {
-        AppleTVGrid(title: "الأفلام", items: apiService.trendingMovies) { selectedMedia = $0 }
+        MediaGrid(title: "الأفلام", items: apiService.trendingMovies) { selectedMedia = $0 }
             .fullScreenCover(item: $selectedMedia) { item in
                 MovieDetailView(item: item, favorites: $favorites)
             }
     }
 }
 
-// MARK: - المسلسلات
+// MARK: - 3. المسلسلات
 struct SeriesView: View {
     @ObservedObject var apiService: APIService
     @Binding var favorites: [MediaItem]
     @State private var selectedMedia: MediaItem?
 
     var body: some View {
-        AppleTVGrid(title: "المسلسلات", items: apiService.trendingSeries) { selectedMedia = $0 }
+        MediaGrid(title: "المسلسلات", items: apiService.trendingSeries) { selectedMedia = $0 }
             .fullScreenCover(item: $selectedMedia) { item in
                 MovieDetailView(item: item, favorites: $favorites)
             }
     }
 }
 
-// MARK: - شاشة البحث (محدثة لتعمل بدقة واستجابة فورية)
+// MARK: - 4. البحث (تم إصلاحه ليعمل بفعالية تامة مع الفلترة الفورية)
 struct SearchView: View {
     @ObservedObject var apiService: APIService
     @Binding var favorites: [MediaItem]
     @State private var searchText = ""
     @State private var selectedMedia: MediaItem?
 
-    // دمج الأفلام والمسلسلات معاً ليكون البحث شامل وعملي
     var searchResults: [MediaItem] {
-        let combined = apiService.trendingMovies + apiService.trendingSeries
-        if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return combined
+        let allItems = apiService.trendingMovies + apiService.trendingSeries
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            return allItems
         }
-        return combined.filter { item in
-            item.displayTitle.localizedCaseInsensitiveContains(searchText)
-        }
+        return allItems.filter { $0.displayTitle.localizedCaseInsensitiveContains(trimmed) }
     }
 
     var body: some View {
@@ -252,8 +253,8 @@ struct SearchView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 10)
 
-                // حقل كتابة البحث
-                HStack(spacing: 8) {
+                // حقل إدخال البحث
+                HStack(spacing: 10) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.gray)
                     
@@ -268,12 +269,12 @@ struct SearchView: View {
                         }
                     }
                 }
-                .padding(10)
+                .padding(12)
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .padding(.horizontal, 16)
 
-                // نتائج البحث بنظام شبكة متناسق
+                // نتائج البحث
                 ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         ForEach(searchResults) { item in
@@ -284,7 +285,7 @@ struct SearchView: View {
                                     } placeholder: {
                                         Color.white.opacity(0.05)
                                     }
-                                    .frame(height: 160)
+                                    .frame(height: 165)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
                                     Text(item.displayTitle)
@@ -296,7 +297,7 @@ struct SearchView: View {
                         }
                     }
                     .padding(.horizontal, 16)
-                    .padding(.bottom, 90)
+                    .padding(.bottom, 100)
                 }
             }
         }
@@ -306,7 +307,7 @@ struct SearchView: View {
     }
 }
 
-// MARK: - الإعدادات
+// MARK: - 5. الإعدادات
 struct SettingsView: View {
     let favoritesCount: Int
 
@@ -325,12 +326,12 @@ struct SettingsView: View {
                     Section {
                         HStack(spacing: 12) {
                             Image(systemName: "person.circle.fill")
-                                .font(.system(size: 36))
+                                .font(.system(size: 34))
                                 .foregroundColor(.cyan)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("حساب Tvclass")
                                     .font(.headline)
-                                Text("نشط • جودة 4K HDR")
+                                Text("نشط • دقة 4K HDR")
                                     .font(.caption)
                                     .foregroundColor(.gray)
                             }
@@ -350,7 +351,7 @@ struct SettingsView: View {
                         HStack {
                             Text("الإصدار")
                             Spacer()
-                            Text("1.1.0")
+                            Text("1.2.0")
                                 .foregroundColor(.gray)
                         }
                     }
@@ -361,28 +362,25 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - شبكة العرض العامة
-struct AppleTVGrid: View {
+// MARK: - شبكة العرض العامة المنسقة
+struct MediaGrid: View {
     let title: String
     let items: [MediaItem]
     let onSelect: (MediaItem) -> Void
-
-    let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
 
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            VStack(alignment: .leading) {
-                if !title.isEmpty {
-                    Text(title)
-                        .font(.title2).bold()
-                        .foregroundColor(.white)
-                        .padding([.top, .horizontal], 16)
-                }
+            VStack(alignment: .leading, spacing: 10) {
+                Text(title)
+                    .font(.title2).bold()
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 10)
 
                 ScrollView(showsIndicators: false) {
-                    LazyVGrid(columns: columns, spacing: 12) {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         ForEach(items) { item in
                             Button(action: { onSelect(item) }) {
                                 AsyncImage(url: item.posterURL) { img in
@@ -390,13 +388,13 @@ struct AppleTVGrid: View {
                                 } placeholder: {
                                     Color.white.opacity(0.05)
                                 }
-                                .frame(height: 160)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .frame(height: 165)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                         }
                     }
-                    .padding(16)
-                    .padding(.bottom, 90)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 100)
                 }
             }
         }
