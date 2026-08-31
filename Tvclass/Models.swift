@@ -1,6 +1,6 @@
 import Foundation
 
-// MARK: - Episode Model
+// نموذج الحلقات
 struct Episode: Identifiable, Codable, Equatable {
     let id: Int
     let title: String
@@ -8,7 +8,7 @@ struct Episode: Identifiable, Codable, Equatable {
     let videoURL: URL
 }
 
-// MARK: - Media Item Model
+// نموذج الأفلام والمسلسلات الرئيسي
 struct MediaItem: Identifiable, Codable, Equatable {
     let id: Int
     let title: String?
