@@ -25,7 +25,7 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            // شريط التنقل السفلي الأصلي والمتناسق مع الآيفون 12 Pro Max
+            // شريط التنقل السفلي العائم (زجاجي ومستقر)
             HStack(spacing: 0) {
                 TabBarButton(icon: "tv.fill", title: "الرئيسية", isSelected: selectedTab == 0) { selectedTab = 0 }
                 TabBarButton(icon: "film.fill", title: "الأفلام", isSelected: selectedTab == 1) { selectedTab = 1 }
@@ -34,13 +34,13 @@ struct ContentView: View {
                 TabBarButton(icon: "gearshape.fill", title: "الإعدادات", isSelected: selectedTab == 4) { selectedTab = 4 }
             }
             .padding(.vertical, 10)
-            .padding(.horizontal, 6)
+            .padding(.horizontal, 4)
             .background(.ultraThinMaterial)
             .clipShape(Capsule())
             .overlay(Capsule().stroke(Color.white.opacity(0.15), lineWidth: 1))
             .shadow(color: .black.opacity(0.5), radius: 15, y: 5)
             .padding(.horizontal, 16)
-            .padding(.bottom, 15)
+            .padding(.bottom, 12)
         }
         .preferredColorScheme(.dark)
         .environment(\.layoutDirection, .rightToLeft)
@@ -60,9 +60,9 @@ struct TabBarButton: View {
         Button(action: action) {
             VStack(spacing: 3) {
                 Image(systemName: icon)
-                    .font(.system(size: 17, weight: isSelected ? .bold : .regular))
+                    .font(.system(size: 16, weight: isSelected ? .bold : .regular))
                 Text(title)
-                    .font(.system(size: 10, weight: isSelected ? .bold : .regular))
+                    .font(.system(size: 9, weight: isSelected ? .bold : .regular))
             }
             .frame(maxWidth: .infinity)
             .foregroundColor(isSelected ? .white : .white.opacity(0.45))
@@ -82,20 +82,20 @@ struct HomeView: View {
                 Color.black.ignoresSafeArea()
 
                 ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 22) {
+                    VStack(alignment: .leading, spacing: 20) {
                         
                         HStack {
                             Text("Tvclass")
-                                .font(.system(size: 24, weight: .heavy, design: .rounded))
+                                .font(.system(size: 22, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
 
                             Spacer()
 
                             Image(systemName: "tv.badge.wifi")
-                                .font(.title2)
+                                .font(.title3)
                                 .foregroundColor(.cyan)
                         }
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, 16)
                         .padding(.top, 10)
 
                         if let featured = apiService.featuredMovies.first {
@@ -105,32 +105,33 @@ struct HomeView: View {
                                 } placeholder: {
                                     Rectangle().fill(Color.white.opacity(0.05))
                                 }
-                                .frame(height: 340)
-                                .clipShape(RoundedRectangle(cornerRadius: 24))
+                                .frame(height: 280)
+                                .frame(maxWidth: .infinity)
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
                                 .overlay(
                                     LinearGradient(colors: [.clear, .black.opacity(0.9)], startPoint: .top, endPoint: .bottom)
                                 )
 
-                                VStack(alignment: .leading, spacing: 10) {
+                                VStack(alignment: .leading, spacing: 8) {
                                     Text(featured.displayTitle)
-                                        .font(.title2).bold()
+                                        .font(.headline).bold()
                                         .foregroundColor(.white)
                                         .lineLimit(1)
 
                                     Button(action: { selectedMedia = featured }) {
                                         HStack(spacing: 6) {
                                             Image(systemName: "play.fill")
-                                            Text("مشاهدة الآن").bold()
+                                            Text("تشغيل الآن").bold()
                                         }
-                                        .font(.subheadline)
+                                        .font(.caption)
                                         .foregroundColor(.black)
-                                        .padding(.horizontal, 22)
-                                        .padding(.vertical, 10)
+                                        .padding(.horizontal, 18)
+                                        .padding(.vertical, 8)
                                         .background(Color.white)
                                         .clipShape(Capsule())
                                     }
                                 }
-                                .padding(20)
+                                .padding(16)
                             }
                             .padding(.horizontal, 16)
                         }
@@ -143,7 +144,7 @@ struct HomeView: View {
                             selectedMedia = item
                         }
 
-                        Spacer().frame(height: 90)
+                        Spacer().frame(height: 80)
                     }
                 }
             }
@@ -160,35 +161,35 @@ struct AppleTVRow: View {
     let onSelect: (MediaItem) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             Text(title)
-                .font(.title3).bold()
+                .font(.subheadline).bold()
                 .foregroundColor(.white)
-                .padding(.horizontal, 20)
+                .padding(.horizontal, 16)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 14) {
+                HStack(spacing: 12) {
                     ForEach(items) { item in
                         Button(action: { onSelect(item) }) {
-                            VStack(alignment: .leading, spacing: 6) {
+                            VStack(alignment: .leading, spacing: 4) {
                                 AsyncImage(url: item.posterURL) { img in
                                     img.resizable().scaledToFill()
                                 } placeholder: {
                                     Color.white.opacity(0.05)
                                 }
-                                .frame(width: 125, height: 185)
-                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .frame(width: 115, height: 170)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
 
                                 Text(item.displayTitle)
-                                    .font(.caption).bold()
+                                    .font(.caption2).bold()
                                     .foregroundColor(.white)
                                     .lineLimit(1)
-                                    .frame(width: 125, alignment: .leading)
+                                    .frame(width: 115, alignment: .leading)
                             }
                         }
                     }
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, 16)
             }
         }
     }
@@ -222,43 +223,82 @@ struct SeriesView: View {
     }
 }
 
-// MARK: - شاشة البحث الجديدة
+// MARK: - شاشة البحث (محدثة لتعمل بدقة واستجابة فورية)
 struct SearchView: View {
     @ObservedObject var apiService: APIService
     @Binding var favorites: [MediaItem]
     @State private var searchText = ""
     @State private var selectedMedia: MediaItem?
 
-    var filteredItems: [MediaItem] {
-        let all = apiService.trendingMovies + apiService.trendingSeries
-        if searchText.isEmpty { return all }
-        return all.filter { $0.displayTitle.localizedCaseInsensitiveContains(searchText) }
+    // دمج الأفلام والمسلسلات معاً ليكون البحث شامل وعملي
+    var searchResults: [MediaItem] {
+        let combined = apiService.trendingMovies + apiService.trendingSeries
+        if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return combined
+        }
+        return combined.filter { item in
+            item.displayTitle.localizedCaseInsensitiveContains(searchText)
+        }
     }
 
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 14) {
                 Text("البحث")
-                    .font(.title).bold()
+                    .font(.title2).bold()
                     .foregroundColor(.white)
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 10)
 
-                HStack {
+                // حقل كتابة البحث
+                HStack(spacing: 8) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.gray)
-                    TextField("ابحث عن فيلم، مسلسل...", text: $searchText)
+                    
+                    TextField("ابحث عن فيلم أو مسلسل...", text: $searchText)
                         .foregroundColor(.white)
-                }
-                .padding(12)
-                .background(.ultraThinMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-                .padding(.horizontal, 20)
+                        .autocorrectionDisabled(true)
 
-                AppleTVGrid(title: "", items: filteredItems) { selectedMedia = $0 }
+                    if !searchText.isEmpty {
+                        Button(action: { searchText = "" }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                        }
+                    }
+                }
+                .padding(10)
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.horizontal, 16)
+
+                // نتائج البحث بنظام شبكة متناسق
+                ScrollView(showsIndicators: false) {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        ForEach(searchResults) { item in
+                            Button(action: { selectedMedia = item }) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    AsyncImage(url: item.posterURL) { img in
+                                        img.resizable().scaledToFill()
+                                    } placeholder: {
+                                        Color.white.opacity(0.05)
+                                    }
+                                    .frame(height: 160)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                                    Text(item.displayTitle)
+                                        .font(.caption2).bold()
+                                        .foregroundColor(.white)
+                                        .lineLimit(1)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 90)
+                }
             }
-            .padding(.top, 10)
         }
         .fullScreenCover(item: $selectedMedia) { item in
             MovieDetailView(item: item, favorites: $favorites)
@@ -266,7 +306,7 @@ struct SearchView: View {
     }
 }
 
-// MARK: - شاشة الإعدادات الجديدة
+// MARK: - الإعدادات
 struct SettingsView: View {
     let favoritesCount: Int
 
@@ -274,54 +314,54 @@ struct SettingsView: View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 16) {
                 Text("الإعدادات")
-                    .font(.title).bold()
+                    .font(.title2).bold()
                     .foregroundColor(.white)
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 10)
 
                 List {
                     Section {
-                        HStack {
+                        HStack(spacing: 12) {
                             Image(systemName: "person.circle.fill")
-                                .font(.largeTitle)
+                                .font(.system(size: 36))
                                 .foregroundColor(.cyan)
-                            VStack(alignment: .leading) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text("حساب Tvclass")
                                     .font(.headline)
-                                Text("اشتراك موثق 4K")
+                                Text("نشط • جودة 4K HDR")
                                     .font(.caption)
                                     .foregroundColor(.gray)
                             }
                         }
                     }
 
-                    Section(header: Text("المكتبة").foregroundColor(.gray)) {
+                    Section(header: Text("المفضلة").foregroundColor(.gray)) {
                         HStack {
-                            Text("العناصر المفضلة")
+                            Text("العناصر المحفوظة")
                             Spacer()
                             Text("\(favoritesCount)")
                                 .foregroundColor(.gray)
                         }
                     }
 
-                    Section(header: Text("التطبيق").foregroundColor(.gray)) {
+                    Section(header: Text("حول التطبيق").foregroundColor(.gray)) {
                         HStack {
                             Text("الإصدار")
                             Spacer()
-                            Text("1.0.0")
+                            Text("1.1.0")
                                 .foregroundColor(.gray)
                         }
                     }
                 }
                 .scrollContentBackground(.hidden)
             }
-            .padding(.top, 10)
         }
     }
 }
 
-// MARK: - الشبكة الشبكية التكيفية
+// MARK: - شبكة العرض العامة
 struct AppleTVGrid: View {
     let title: String
     let items: [MediaItem]
@@ -336,13 +376,13 @@ struct AppleTVGrid: View {
             VStack(alignment: .leading) {
                 if !title.isEmpty {
                     Text(title)
-                        .font(.title).bold()
+                        .font(.title2).bold()
                         .foregroundColor(.white)
-                        .padding([.top, .horizontal], 20)
+                        .padding([.top, .horizontal], 16)
                 }
 
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: 14) {
+                ScrollView(showsIndicators: false) {
+                    LazyVGrid(columns: columns, spacing: 12) {
                         ForEach(items) { item in
                             Button(action: { onSelect(item) }) {
                                 AsyncImage(url: item.posterURL) { img in
@@ -350,9 +390,8 @@ struct AppleTVGrid: View {
                                 } placeholder: {
                                     Color.white.opacity(0.05)
                                 }
-                                .frame(height: 165)
-                                .clipShape(RoundedRectangle(cornerRadius: 14))
-                                .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.white.opacity(0.1), lineWidth: 1))
+                                .frame(height: 160)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                         }
                     }
