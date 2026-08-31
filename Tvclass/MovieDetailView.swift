@@ -94,7 +94,7 @@ struct MovieDetailView: View {
                         }
                         .frame(height: 260)
                         .frame(maxWidth: .infinity)
-                        .clipped() // منع تجاوز الحواف وتمدد الصورة
+                        .clipped() // منع تجاوز الحواف وتمدد الخلفية
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .overlay(
                             LinearGradient(colors: [.clear, .black.opacity(0.95)], startPoint: .top, endPoint: .bottom)
