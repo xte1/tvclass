@@ -15,7 +15,6 @@ struct MovieDetailView: View {
 
     var body: some View {
         ZStack {
-            // خلفية سينمائية مع التغبيش الزجاجي العميق
             AsyncImage(url: item.backdropURL ?? item.posterURL) { img in
                 img.resizable().scaledToFill()
             } placeholder: {
@@ -28,7 +27,6 @@ struct MovieDetailView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     
-                    // الهيدر الرئيسي بنمط Apple TV Hero
                     ZStack(alignment: .bottomLeading) {
                         AsyncImage(url: item.backdropURL ?? item.posterURL) { img in
                             img.resizable().scaledToFill()
@@ -49,7 +47,6 @@ struct MovieDetailView: View {
                                 .stroke(Color.white.opacity(0.15), lineWidth: 1)
                         )
 
-                        // تفاصيل وأزرار التشغيل العائمة
                         VStack(alignment: .leading, spacing: 12) {
                             Text(item.displayTitle)
                                 .font(.system(size: 34, weight: .heavy, design: .rounded))
@@ -73,7 +70,6 @@ struct MovieDetailView: View {
                                     .foregroundColor(.yellow)
                             }
 
-                            // أزرار التحكم الزجاجية (Liquid Glass Buttons)
                             HStack(spacing: 14) {
                                 Button(action: {
                                     let isMovie = item.title != nil
@@ -119,7 +115,6 @@ struct MovieDetailView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 60)
 
-                    // قسم الوصف (Liquid Card)
                     VStack(alignment: .trailing, spacing: 8) {
                         Text("حول العمل")
                             .font(.title3).bold()
@@ -138,7 +133,6 @@ struct MovieDetailView: View {
                     .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.white.opacity(0.1), lineWidth: 1))
                     .padding(.horizontal, 16)
 
-                    // قسم الحلقات والمواسم للمسلسلات
                     if item.title == nil {
                         VStack(alignment: .trailing, spacing: 16) {
                             HStack {
@@ -169,7 +163,6 @@ struct MovieDetailView: View {
                             }
                             .padding(.horizontal, 16)
 
-                            // شبكة الحلقات الزجاجية بنمط Apple TV Cards
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 16) {
                                     ForEach(1...10, id: \.self) { ep in
@@ -189,7 +182,6 @@ struct MovieDetailView: View {
                 .padding(.bottom, 120)
             }
 
-            // زر العودة العلوي الزجاجي
             VStack {
                 HStack {
                     Spacer()
@@ -217,7 +209,6 @@ struct MovieDetailView: View {
     }
 }
 
-// MARK: - كارت الحلقة المخصص بنمط Apple TV Liquid Glass
 struct AppleTVEpisodeCard: View {
     let epNumber: Int
     let item: MediaItem
