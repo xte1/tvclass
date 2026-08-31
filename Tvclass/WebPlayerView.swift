@@ -27,23 +27,28 @@ struct NativeWebPlayer: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
+        ZStack(alignment: .topTrailing) {
             Color.black.ignoresSafeArea()
 
             NativeWebPlayerView(url: url)
                 .ignoresSafeArea()
 
             Button(action: { dismiss() }) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
-                    .padding(14)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                HStack(spacing: 6) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .bold))
+                    Text("إغلاق")
+                        .font(.caption).bold()
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(Color.red.opacity(0.85))
+                .clipShape(Capsule())
+                .shadow(color: .black.opacity(0.5), radius: 10)
             }
-            .padding(.top, 50)
-            .padding(.leading, 20)
+            .padding(.top, 20)
+            .padding(.trailing, 20)
         }
     }
 }
