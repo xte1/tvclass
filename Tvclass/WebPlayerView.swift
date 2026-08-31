@@ -33,7 +33,6 @@ struct NativeWebPlayer: View {
             NativeWebPlayerView(url: url)
                 .ignoresSafeArea()
 
-            // زر إغلاق بنمط Apple TV Glass
             Button(action: { dismiss() }) {
                 Image(systemName: "xmark")
                     .font(.system(size: 18, weight: .bold))
@@ -42,7 +41,6 @@ struct NativeWebPlayer: View {
                     .background(.ultraThinMaterial)
                     .clipShape(Circle())
                     .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
-                    .shadow(color: .black.opacity(0.3), radius: 10)
             }
             .padding(.top, 50)
             .padding(.leading, 20)
