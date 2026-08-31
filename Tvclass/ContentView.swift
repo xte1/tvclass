@@ -23,7 +23,7 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            // شريط تنقل زجاجي عائم يتأقلم بحسب عرض الشاشة
+            // شريط تنقل زجاجي عائم ومتناسق
             HStack(spacing: 0) {
                 TabBarButton(icon: "tv.fill", title: "الرئيسية", isSelected: selectedTab == 0) { selectedTab = 0 }
                 TabBarButton(icon: "film.fill", title: "الأفلام", isSelected: selectedTab == 1) { selectedTab = 1 }
@@ -31,16 +31,17 @@ struct ContentView: View {
                 TabBarButton(icon: "heart.fill", title: "المكتبة", isSelected: selectedTab == 3) { selectedTab = 3 }
             }
             .padding(.vertical, 10)
-            .frame(maxWidth: 500) // حد أقصى للعرض للشاشات الكبيرة كـ iPad
+            .padding(.horizontal, 8)
+            .frame(maxWidth: 450)
             .background(.ultraThinMaterial)
             .clipShape(Capsule())
             .overlay(Capsule().stroke(Color.white.opacity(0.15), lineWidth: 1))
             .shadow(color: .black.opacity(0.4), radius: 15, y: 5)
             .padding(.horizontal, 16)
-            .padding(.bottom, 15)
+            .padding(.bottom, 20)
         }
         .preferredColorScheme(.dark)
-        .environment(\.layoutDirection, .leftToRight)
+        .environment(\.layoutDirection, .rightToLeft)
         .onAppear {
             apiService.fetchAllData()
         }
@@ -55,14 +56,14 @@ struct TabBarButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 3) {
+            VStack(spacing: 4) {
                 Image(systemName: icon)
-                    .font(.system(size: 16, weight: isSelected ? .bold : .regular))
+                    .font(.system(size: 18, weight: isSelected ? .bold : .regular))
                 Text(title)
-                    .font(.system(size: 10, weight: isSelected ? .bold : .regular))
+                    .font(.system(size: 11, weight: isSelected ? .bold : .medium))
             }
             .frame(maxWidth: .infinity)
-            .foregroundColor(isSelected ? .white : .white.opacity(0.4))
+            .foregroundColor(isSelected ? .white : .white.opacity(0.45))
         }
     }
 }
@@ -79,57 +80,59 @@ struct HomeView: View {
                     Color.black.ignoresSafeArea()
 
                     ScrollView(showsIndicators: false) {
-                        VStack(alignment: .trailing, spacing: 20) {
+                        VStack(alignment: .leading, spacing: 24) {
                             
                             // الهيدر العلوي
                             HStack {
-                                Image(systemName: "tv.badge.wifi")
-                                    .font(.title3)
-                                    .foregroundColor(.cyan)
+                                Text("Tvclass")
+                                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
 
                                 Spacer()
 
-                                Text("Tvclass")
-                                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white)
+                                Image(systemName: "tv.badge.wifi")
+                                    .font(.title2)
+                                    .foregroundColor(.cyan)
                             }
                             .padding(.horizontal, 20)
                             .padding(.top, 10)
 
-                            // البوستر الرئيسي يتكيف طوله مع حجم الشاشة
+                            // البوستر الرئيسي متناسق الحجم
                             if let featured = apiService.featuredMovies.first {
-                                ZStack(alignment: .bottomTrailing) {
+                                ZStack(alignment: .bottomLeading) {
                                     AsyncImage(url: featured.backdropURL ?? featured.posterURL) { img in
                                         img.resizable().scaledToFill()
                                     } placeholder: {
                                         Rectangle().fill(Color.white.opacity(0.05))
                                     }
-                                    .frame(height: min(geo.size.height * 0.45, 380))
-                                    .frame(maxWidth: .infinity)
-                                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                                    .frame(width: geo.size.width - 32, height: min(geo.size.height * 0.45, 380))
+                                    .clipShape(RoundedRectangle(cornerRadius: 24))
                                     .overlay(
-                                        LinearGradient(colors: [.clear, .black.opacity(0.85)], startPoint: .top, endPoint: .bottom)
+                                        LinearGradient(colors: [.clear, .black.opacity(0.9)], startPoint: .top, endPoint: .bottom)
                                     )
 
-                                    VStack(alignment: .trailing, spacing: 8) {
+                                    VStack(alignment: .leading, spacing: 10) {
                                         Text(featured.displayTitle)
-                                            .font(.title3).bold()
+                                            .font(.title2).bold()
                                             .foregroundColor(.white)
+                                            .lineLimit(1)
 
-                                        Button(action: { selectedMedia = featured }) {
-                                            HStack {
-                                                Image(systemName: "play.fill")
-                                                Text("مشاهدة").bold()
+                                        HStack(spacing: 12) {
+                                            Button(action: { selectedMedia = featured }) {
+                                                HStack(spacing: 6) {
+                                                    Image(systemName: "play.fill")
+                                                    Text("تشغيل").bold()
+                                                }
+                                                .font(.subheadline)
+                                                .foregroundColor(.black)
+                                                .padding(.horizontal, 22)
+                                                .padding(.vertical, 10)
+                                                .background(Color.white)
+                                                .clipShape(Capsule())
                                             }
-                                            .font(.subheadline)
-                                            .foregroundColor(.black)
-                                            .padding(.horizontal, 20)
-                                            .padding(.vertical, 8)
-                                            .background(Color.white)
-                                            .clipShape(Capsule())
                                         }
                                     }
-                                    .padding(16)
+                                    .padding(20)
                                 }
                                 .padding(.horizontal, 16)
                             }
@@ -142,7 +145,7 @@ struct HomeView: View {
                                 selectedMedia = item
                             }
 
-                            Spacer().frame(height: 80)
+                            Spacer().frame(height: 100)
                         }
                     }
                 }
@@ -160,9 +163,9 @@ struct AppleTVRow: View {
     let onSelect: (MediaItem) -> Void
 
     var body: some View {
-        VStack(alignment: .trailing, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(title)
-                .font(.headline)
+                .font(.title3).bold()
                 .foregroundColor(.white)
                 .padding(.horizontal, 20)
 
@@ -170,21 +173,21 @@ struct AppleTVRow: View {
                 HStack(spacing: 14) {
                     ForEach(items) { item in
                         Button(action: { onSelect(item) }) {
-                            VStack(alignment: .trailing, spacing: 4) {
+                            VStack(alignment: .leading, spacing: 6) {
                                 AsyncImage(url: item.posterURL) { img in
                                     img.resizable().scaledToFill()
                                 } placeholder: {
                                     Color.white.opacity(0.05)
                                 }
-                                .frame(width: 125, height: 180)
-                                .clipShape(RoundedRectangle(cornerRadius: 14))
-                                .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.white.opacity(0.1), lineWidth: 1))
+                                .frame(width: 130, height: 190)
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.1), lineWidth: 1))
 
                                 Text(item.displayTitle)
                                     .font(.caption).bold()
                                     .foregroundColor(.white)
                                     .lineLimit(1)
-                                    .frame(width: 125, alignment: .trailing)
+                                    .frame(width: 130, alignment: .leading)
                             }
                         }
                     }
@@ -233,26 +236,25 @@ struct LibraryView: View {
     }
 }
 
-// شبكة متكيفة تلقائياً بحسب عرض الشاشة (تزيد الأعمدة في iPad وتقل في iPhone)
 struct AppleTVGrid: View {
     let title: String
     let items: [MediaItem]
     let onSelect: (MediaItem) -> Void
 
-    let columns = [GridItem(.adaptive(minimum: 110, maximum: 160), spacing: 14)]
+    let columns = [GridItem(.adaptive(minimum: 120, maximum: 170), spacing: 16)]
 
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            VStack(alignment: .trailing) {
+            VStack(alignment: .leading) {
                 Text(title)
-                    .font(.title2).bold()
+                    .font(.title).bold()
                     .foregroundColor(.white)
                     .padding([.top, .horizontal], 20)
 
                 ScrollView {
-                    LazyVGrid(columns: columns, spacing: 14) {
+                    LazyVGrid(columns: columns, spacing: 16) {
                         ForEach(items) { item in
                             Button(action: { onSelect(item) }) {
                                 AsyncImage(url: item.posterURL) { img in
@@ -260,14 +262,14 @@ struct AppleTVGrid: View {
                                 } placeholder: {
                                     Color.white.opacity(0.05)
                                 }
-                                .frame(height: 160)
-                                .clipShape(RoundedRectangle(cornerRadius: 14))
-                                .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.white.opacity(0.1), lineWidth: 1))
+                                .frame(height: 180)
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.1), lineWidth: 1))
                             }
                         }
                     }
                     .padding(16)
-                    .padding(.bottom, 80)
+                    .padding(.bottom, 90)
                 }
             }
         }
