@@ -1,5 +1,14 @@
 import Foundation
 
+// MARK: - تعريف Episode لإنهاء خطأ التجميع
+struct Episode: Identifiable, Codable, Equatable {
+    let id: Int
+    let title: String
+    let episodeNumber: Int
+    let videoURL: URL?
+}
+
+// MARK: - مودل البيانات الرئيسي
 struct MediaItem: Identifiable, Codable, Equatable {
     let id: Int
     let title: String?
